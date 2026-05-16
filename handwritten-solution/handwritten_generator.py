@@ -29,9 +29,8 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 # ==================== НАСТРОЙКИ ====================
 
-DEFAULT_FONT_PATH = os.path.expanduser(
-    "~/Downloads/fd059b0992a48a29deca57bc6ea325c1/fonts/abram_font4you.ttf")
-# Фоллбэк
+_SKILL_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_FONT_PATH = os.path.join(_SKILL_DIR, "abram_font4you.ttf")
 if not os.path.exists(DEFAULT_FONT_PATH):
     DEFAULT_FONT_PATH = os.path.expanduser("~/Library/Fonts/BadScript-Regular.ttf")
 
