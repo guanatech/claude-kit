@@ -26,7 +26,46 @@ Generates realistic images of handwritten solutions on notebook paper (A5, grid/
 
 ## Font
 
-Primary: `abram_font4you.ttf` (from font4you). Fallback: `BadScript-Regular.ttf`.
+Lives in `fonts/`. Primary: `fonts/lorenco_font.ttf`. Fallbacks: `fonts/abram_font.ttf`, `~/Library/Fonts/BadScript-Regular.ttf`.
+
+## Source layout
+
+Code is split into `lib/` for clarity; `handwritten_generator.py` re-exports the public API for backward compat.
+
+- `lib/config.py` — image dims, margins, font sizes, `PEN` colors, `DEFAULT_FONT_PATH`
+- `lib/presets.py` — `BACKGROUND_PRESETS`, `DEFAULT_PRESET`
+- `lib/paper.py` — paper texture + grid
+- `lib/text.py` — handwritten char rendering
+- `lib/pages.py` — `create_page`, `render_solution_pages`
+- `lib/camera.py` — `apply_phone_camera_effect`
+- `lib/graphs.py` — pen primitives, `make_graph_page`
+- `lib/generator.py` — `HandwrittenGenerator` class
+
+## Background presets
+
+`apply_phone_camera_effect(img, preset=...)` and `HandwrittenGenerator.generate(..., preset=...)` accept:
+
+| Preset       | Desk          | Light          |
+|--------------|---------------|----------------|
+| `white_desk` | off-white     | neutral/daylight (default) |
+| `wood`       | warm wood     | mildly warm    |
+| `dark_wood`  | dark wood     | mildly warm    |
+| `gray`       | neutral gray  | white          |
+| `beige`      | light beige   | slightly warm  |
+| `graph`      | off-white     | very soft (for graphs, alias of `light=True`) |
+
+Default is `white_desk` — white LED / daylight rather than incandescent. Override per-call: `gen.generate(header, lines, preset="wood")`.
+
+## Paper presets
+
+`HandwrittenGenerator.generate(..., paper=...)` and `draw_grid(..., paper=...)` accept:
+
+| Paper      | Grid | Red margin |
+|------------|------|------------|
+| `notebook` | yes  | yes (default) |
+| `grid`     | yes  | no         |
+
+Example: `gen.generate(header, lines, paper="grid", preset="white_desk")`.
 
 ## Line Format
 
