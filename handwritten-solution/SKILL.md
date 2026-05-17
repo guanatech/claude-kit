@@ -67,6 +67,39 @@ Default is `white_desk` — white LED / daylight rather than incandescent. Overr
 
 Example: `gen.generate(header, lines, paper="grid", preset="white_desk")`.
 
+## Generator API
+
+```python
+from handwritten_generator import HandwrittenGenerator
+
+gen = HandwrittenGenerator(
+    output_dir="./handwritten_output",  # куда сохранять PNG
+    font_path=None,                       # None → DEFAULT_FONT_PATH из lib/config.py
+)
+
+# Одношаговый рендер + сохранение, возвращает список путей к PNG
+paths = gen.generate(
+    header_text="Иванов И., 9А",        # текст в шапке страницы
+    solution_lines=lines,                  # список кортежей (text, style)
+    prefix="page",                        # имя файла: {prefix}_{N}.png
+    apply_camera=True,                    # эффект фото с телефона
+    preset="white_desk",                # фон/освещение (см. Background presets)
+    paper="notebook",                    # тип бумаги (см. Paper presets)
+)
+
+# Разделённые шаги — когда нужно вмешаться между рендером и сохранением
+pages = gen.render_pages(header_text, lines, apply_camera=True,
+                          preset="wood", paper="grid")
+paths = gen.save_pages(pages, prefix="task1")
+```
+
+Минимальный пример:
+
+```python
+gen = HandwrittenGenerator(output_dir="/tmp/out")
+gen.generate("Заголовок", [("Привет", "normal")])
+```
+
 ## Line Format
 
 ```python
@@ -119,7 +152,23 @@ page.save("graph.png")
 | `IMG_W x IMG_H` | 1748 x 2480 | A5 at ~300dpi |
 | `CELL_SIZE` | 30 | Grid cell (~5mm) |
 
-## Dependencies
+## Installation
+
+Через Makefile:
+
+```
+make install         # установить Python-зависимости (Pillow, numpy, python-docx)
+make install-skill   # симлинк скилла в ~/.claude/skills/handwritten-solution
+make uninstall-skill # удалить симлинк скилла
+make demo            # сгенерировать демо-страницу в /tmp/handwritten_demo
+make clean           # удалить /tmp/handwritten_demo
+make clean-all       # clean + __pycache__ + симлинк скилла + Python-зависимости
+make help            # список доступных таргетов
+```
+
+Каталог вывода переопределяется: `make demo DEMO_DIR=/tmp/foo`. Переопределить интерпретатор: `make install PYTHON=python3.12`.
+
+Вручную:
 
 ```
 pip install Pillow numpy python-docx
