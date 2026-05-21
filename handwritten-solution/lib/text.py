@@ -6,16 +6,27 @@ from PIL import Image, ImageDraw
 def _render_char_image(ch, font, color, pressure):
     pad = 20
     bbox = font.getbbox(ch)
-    ch_w = bbox[2] - bbox[0] + pad * 2
-    ch_h = bbox[3] - bbox[1] + pad * 2
+    ascent, descent = font.getmetrics()
+    # Ширина — по ink, высота — одинакова для всех глифов шрифта
+    # (ascent + descent + поля). Это гарантирует, что baseline у всех
+    # глифов оказывается на одной y-координате внутри картинки, и тогда
+    # centring при вставке (в draw_handwritten_text) совпадает с правильным
+    # baseline-alignment'ом. До этого ink top каждого глифа ставился на
+    # одно и то же место, из-за чего у запятой (ink near baseline) тело
+    # уезжало вверх относительно цифр.
+    ch_w = max(1, bbox[2] - bbox[0]) + pad * 2
+    ch_h = ascent + descent + pad * 2
 
     char_img = Image.new('RGBA', (ch_w, ch_h), (0, 0, 0, 0))
     char_draw = ImageDraw.Draw(char_img)
-    char_draw.text((pad - bbox[0], pad - bbox[1]), ch, fill=color + (255,), font=font)
+    # Anchor 'la' (по умолчанию): y — позиция ascender top.
+    # Ставим ascender top на y=pad → baseline на y=pad+ascent для всех глифов.
+    draw_y = pad
+    char_draw.text((pad - bbox[0], draw_y), ch, fill=color + (255,), font=font)
 
     if pressure > 1.1:
         overlay_color = (max(5, color[0]-10), max(10, color[1]-10), max(60, color[2]-15), 180)
-        char_draw.text((pad - bbox[0] + 1, pad - bbox[1]), ch, fill=overlay_color, font=font)
+        char_draw.text((pad - bbox[0] + 1, draw_y), ch, fill=overlay_color, font=font)
 
     angle = random.uniform(-0.3, 0.3)
     char_img = char_img.rotate(angle, resample=Image.BICUBIC, expand=True, fillcolor=(0,0,0,0))
